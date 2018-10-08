@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OpenWeatherMap implements Weather {
@@ -22,7 +21,7 @@ public class OpenWeatherMap implements Weather {
     @Override
     public Temperature currentTemperatureFor(String city) {
         try {
-            String json = json(city);
+            String json = callWeatherServiceFor(urlFor(city));
             ObjectMapper mapper = new ObjectMapper();
             String main = subtree(mapper, json, "main");
             return new Temperature(getDouble(mapper, main, "temp"));
@@ -36,8 +35,8 @@ public class OpenWeatherMap implements Weather {
         return new URL("http://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
     }
 
-    private String json(String city)  throws IOException {
-        try (InputStream input = urlFor(city).openStream()) {
+    private String callWeatherServiceFor(URL url) throws IOException {
+        try (InputStream input = url.openStream()) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
                 return reader.lines().collect(Collectors.joining(System.lineSeparator()));
             }
