@@ -1,8 +1,5 @@
 package de.outfit;
 
-public class Weather {
-
-    public Temperature currentTemperature() {
-        return null;
-    }
+public interface Weather {
+    Temperature currentTemperatureFor(String city);
 }
