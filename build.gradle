@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+compileJava.options.encoding = 'UTF-8'
+
+dependencies {
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+jar {
+    def version = '1.0'
+    manifest {
+        attributes 'Main-Class': 'OutfitService'
+        attributes 'Implementation-Version': version
+    }
+    libsDirName = '../archives'
+    archiveName = project.name + '.jar'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
