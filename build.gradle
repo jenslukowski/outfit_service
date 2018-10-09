@@ -6,6 +6,7 @@ compileJava.options.encoding = 'UTF-8'
 
 dependencies {
     compile fileTree(dir: 'lib', include: ['*.jar'])
+    testCompile fileTree(dir: 'lib/rest-assured', include: ['*.jar'])
 }
 
 jar {
@@ -17,4 +18,17 @@ jar {
     libsDirName = '../archives'
     archiveName = project.name + '.jar'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src"]
+        }
+    }
+    test {
+        java {
+            srcDirs = ["test"]
+        }
+    }
 }
