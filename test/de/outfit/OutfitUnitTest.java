@@ -5,7 +5,7 @@ import org.junit.Test;
 import static de.outfit.OutfitRecommendation.*;
 import static org.junit.Assert.assertEquals;
 
-public class OutfitTest {
+public class OutfitUnitTest {
 
     @Test
     public void temperatureGreaterThan26ShouldResultInVeryLight() {
