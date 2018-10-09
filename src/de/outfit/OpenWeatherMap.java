@@ -20,14 +20,45 @@ public class OpenWeatherMap implements Weather {
     // http://api.openweathermap.org/data/2.5/weather?q=Karlsruhe&appid=&units=metric
     @Override
     public Temperature currentTemperatureForCity(String city) throws IOException {
-        String json = callWeatherServiceFor(urlFor(city));
+        return currentTemperatureFor(urlForCity(city));
+    }
+
+    @Override
+    public Temperature currentTemperatureForCityId(int id) throws IOException {
+        return currentTemperatureFor(urlForCityId(id));
+    }
+
+    @Override
+    public Temperature currentTemperatureForLocation(double latitude, double longitude) throws IOException {
+        return currentTemperatureFor(urlForLocation(latitude, longitude));
+    }
+
+    @Override
+    public Temperature currentTemperatureForZip(String zip) throws IOException {
+        return currentTemperatureFor(urlForZip(zip));
+    }
+
+    private URL urlForCity(String city) throws UnsupportedEncodingException, MalformedURLException {
+        return new URL("http://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+    }
+
+    private URL urlForCityId(int cityId) throws UnsupportedEncodingException, MalformedURLException {
+        return new URL("http://api.openweathermap.org/data/2.5/weather?id=" + cityId + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+    }
+
+    private URL urlForLocation(double latitude, double longitude) throws UnsupportedEncodingException, MalformedURLException {
+        return new URL("http://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+    }
+
+    private URL urlForZip(String zip) throws UnsupportedEncodingException, MalformedURLException {
+        return new URL("http://api.openweathermap.org/data/2.5/weather?zip=" + URLEncoder.encode(zip, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+    }
+
+    private Temperature currentTemperatureFor(URL url) throws IOException {
+        String json = callWeatherServiceFor(url);
         ObjectMapper mapper = new ObjectMapper();
         String main = subtree(mapper, json, "main");
         return new Temperature(getDouble(mapper, main, "temp"));
-    }
-
-    private URL urlFor(String city) throws UnsupportedEncodingException, MalformedURLException {
-        return new URL("http://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
     }
 
     private String callWeatherServiceFor(URL url) throws IOException {

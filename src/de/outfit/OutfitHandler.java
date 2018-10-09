@@ -33,19 +33,18 @@ public class OutfitHandler implements HttpHandler {
         try (final JsonGenerator json = new JsonFactory().createGenerator(exchange.getOutputStream())) {
             final Map<String, Deque<String>> params = exchange.getQueryParameters();
 
-            if (!params.containsKey("q")) {
-                exchange.setResponseCode(422);
-                json.writeStartObject();
-                json.writeStringField("error", "No location given");
-                json.writeEndObject();
-                return;
-            }
             try {
-                Temperature temperature = weather.currentTemperatureForCity(params.get("q").getFirst());
+                Temperature temperature = getCurrentTemperature(params);
                 json.writeStartObject();
                 json.writeNumberField("temperature", temperature.getTemperatureInCelsius());
                 json.writeStringField("temperature_unit", "Celsius");
                 json.writeNumberField("outfit_level", OutfitRecommendation.recommendOutfitFor(temperature).getLevel());
+                json.writeEndObject();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+                exchange.setResponseCode(422);
+                json.writeStartObject();
+                json.writeStringField("error", "No location given");
                 json.writeEndObject();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -61,5 +60,23 @@ public class OutfitHandler implements HttpHandler {
                 json.writeEndObject();
             }
         }
+    }
+
+    private Temperature getCurrentTemperature(Map<String, Deque<String>> params) throws IOException, IllegalArgumentException {
+        if (params.containsKey("q")) {
+            return weather.currentTemperatureForCity(params.get("q").getFirst());
+        }
+        if (params.containsKey("id")) {
+            return weather.currentTemperatureForCityId(Integer.parseInt(params.get("id").getFirst()));
+        }
+        if (params.containsKey("lat") && params.containsKey("lon")) {
+            return weather.currentTemperatureForLocation(
+                    Double.parseDouble(params.get("lat").getFirst()),
+                    Double.parseDouble(params.get("lon").getFirst()));
+        }
+        if (params.containsKey("zip")) {
+            return weather.currentTemperatureForZip(params.get("zip").getFirst());
+        }
+        throw new IllegalArgumentException("No location given");
     }
 }
