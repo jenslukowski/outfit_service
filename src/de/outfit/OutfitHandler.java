@@ -7,6 +7,8 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Deque;
 import java.util.Map;
 
@@ -38,12 +40,26 @@ public class OutfitHandler implements HttpHandler {
                 json.writeEndObject();
                 return;
             }
-            Temperature temperature = weather.currentTemperatureFor(params.get("q").getFirst());
-            json.writeStartObject();
-            json.writeNumberField("temperature", temperature.getTemperatureInCelsius());
-            json.writeStringField("temperature_unit", "Celsius");
-            json.writeNumberField("outfit_level", OutfitRecommendation.recommendOutfitFor(temperature).getLevel());
-            json.writeEndObject();
+            try {
+                Temperature temperature = weather.currentTemperatureForCity(params.get("q").getFirst());
+                json.writeStartObject();
+                json.writeNumberField("temperature", temperature.getTemperatureInCelsius());
+                json.writeStringField("temperature_unit", "Celsius");
+                json.writeNumberField("outfit_level", OutfitRecommendation.recommendOutfitFor(temperature).getLevel());
+                json.writeEndObject();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                exchange.setResponseCode(404);
+                json.writeStartObject();
+                json.writeStringField("error", "Could not find location");
+                json.writeEndObject();
+            } catch (IOException e) {
+                e.printStackTrace();
+                exchange.setResponseCode(503);
+                json.writeStartObject();
+                json.writeStringField("error", "Could not make recommendation");
+                json.writeEndObject();
+            }
         }
     }
 }

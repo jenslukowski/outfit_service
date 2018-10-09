@@ -19,16 +19,11 @@ public class OpenWeatherMap implements Weather {
 
     // http://api.openweathermap.org/data/2.5/weather?q=Karlsruhe&appid=&units=metric
     @Override
-    public Temperature currentTemperatureFor(String city) {
-        try {
-            String json = callWeatherServiceFor(urlFor(city));
-            ObjectMapper mapper = new ObjectMapper();
-            String main = subtree(mapper, json, "main");
-            return new Temperature(getDouble(mapper, main, "temp"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public Temperature currentTemperatureForCity(String city) throws IOException {
+        String json = callWeatherServiceFor(urlFor(city));
+        ObjectMapper mapper = new ObjectMapper();
+        String main = subtree(mapper, json, "main");
+        return new Temperature(getDouble(mapper, main, "temp"));
     }
 
     private URL urlFor(String city) throws UnsupportedEncodingException, MalformedURLException {
