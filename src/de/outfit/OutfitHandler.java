@@ -34,11 +34,13 @@ public class OutfitHandler implements HttpHandler {
             final Map<String, Deque<String>> params = exchange.getQueryParameters();
 
             try {
-                Temperature temperature = getCurrentTemperature(params);
+                TemperatureAtLocation temperatureAtLocation = getCurrentTemperature(params);
                 json.writeStartObject();
-                json.writeNumberField("temperature", temperature.getTemperatureInCelsius());
+                json.writeStringField("city", temperatureAtLocation.getCity());
+                json.writeStringField("country", temperatureAtLocation.getCountry());
+                json.writeNumberField("temperature", temperatureAtLocation.getTemperature().getTemperatureInCelsius());
                 json.writeStringField("temperature_unit", "Celsius");
-                json.writeNumberField("outfit_level", OutfitRecommendation.recommendOutfitFor(temperature).getLevel());
+                json.writeNumberField("outfit_level", OutfitRecommendation.recommendOutfitFor(temperatureAtLocation.getTemperature()).getLevel());
                 json.writeEndObject();
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
@@ -62,7 +64,7 @@ public class OutfitHandler implements HttpHandler {
         }
     }
 
-    private Temperature getCurrentTemperature(Map<String, Deque<String>> params) throws IOException, IllegalArgumentException {
+    private TemperatureAtLocation getCurrentTemperature(Map<String, Deque<String>> params) throws IOException, IllegalArgumentException {
         if (params.containsKey("q")) {
             return weather.currentTemperatureForCity(params.get("q").getFirst());
         }

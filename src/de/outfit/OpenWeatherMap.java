@@ -20,22 +20,22 @@ public class OpenWeatherMap implements Weather {
 
     // http://api.openweathermap.org/data/2.5/weather?q=Karlsruhe&appid=&units=metric
     @Override
-    public Temperature currentTemperatureForCity(String city) throws IOException {
+    public TemperatureAtLocation currentTemperatureForCity(String city) throws IOException {
         return currentTemperatureFor(urlForCity(city));
     }
 
     @Override
-    public Temperature currentTemperatureForCityId(int id) throws IOException {
+    public TemperatureAtLocation currentTemperatureForCityId(int id) throws IOException {
         return currentTemperatureFor(urlForCityId(id));
     }
 
     @Override
-    public Temperature currentTemperatureForLocation(double latitude, double longitude) throws IOException {
+    public TemperatureAtLocation currentTemperatureForLocation(double latitude, double longitude) throws IOException {
         return currentTemperatureFor(urlForLocation(latitude, longitude));
     }
 
     @Override
-    public Temperature currentTemperatureForZip(String zip) throws IOException {
+    public TemperatureAtLocation currentTemperatureForZip(String zip) throws IOException {
         return currentTemperatureFor(urlForZip(zip));
     }
 
@@ -55,11 +55,16 @@ public class OpenWeatherMap implements Weather {
         return new URL(openWeatherMapURL + "?zip=" + URLEncoder.encode(zip, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
     }
 
-    private Temperature currentTemperatureFor(URL url) throws IOException {
+    private TemperatureAtLocation currentTemperatureFor(URL url) throws IOException {
         String json = callWeatherServiceFor(url);
         ObjectMapper mapper = new ObjectMapper();
         String main = subtree(mapper, json, "main");
-        return new Temperature(getDouble(mapper, main, "temp"));
+        String sys = subtree(mapper, json, "sys");
+        return new TemperatureAtLocation(
+                getString(mapper, json, "name"),
+                getString(mapper, sys, "country"),
+                new Temperature(getDouble(mapper, main, "temp"))
+        );
     }
 
     private String callWeatherServiceFor(URL url) throws IOException {
@@ -73,6 +78,11 @@ public class OpenWeatherMap implements Weather {
     private String subtree(ObjectMapper mapper, String json, String key) throws IOException {
         final ObjectNode root = mapper.readValue(json, ObjectNode.class);
         return root.get(key).toString();
+    }
+
+    private String getString(ObjectMapper mapper, String json, String key) throws IOException {
+        final ObjectNode root = mapper.readValue(json, ObjectNode.class);
+        return root.get(key).asText();
     }
 
     private double getDouble(ObjectMapper mapper, String json, String key) throws IOException {

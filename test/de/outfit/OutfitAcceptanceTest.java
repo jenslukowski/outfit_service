@@ -19,23 +19,23 @@ public class OutfitAcceptanceTest {
         RestAssured.baseURI = "http://localhost";
         OutfitService.startServer("localhost", 8080, new Weather() {
             @Override
-            public Temperature currentTemperatureForCity(String city) throws IOException {
-                return new Temperature(19);
+            public TemperatureAtLocation currentTemperatureForCity(String city) throws IOException {
+                return new TemperatureAtLocation("Karlsruhe", "DE", new Temperature(19));
             }
 
             @Override
-            public Temperature currentTemperatureForCityId(int id) throws IOException {
+            public TemperatureAtLocation currentTemperatureForCityId(int id) throws IOException {
                 throw new FileNotFoundException("Location not found");
             }
 
             @Override
-            public Temperature currentTemperatureForLocation(double latitude, double longitude) throws IOException {
-                return new Temperature(27);
+            public TemperatureAtLocation currentTemperatureForLocation(double latitude, double longitude) throws IOException {
+                return new TemperatureAtLocation("Karlsruhe", "DE", new Temperature(27));
             }
 
             @Override
-            public Temperature currentTemperatureForZip(String zip) throws IOException {
-                return new Temperature(0);
+            public TemperatureAtLocation currentTemperatureForZip(String zip) throws IOException {
+                return new TemperatureAtLocation("Karlsruhe", "DE", new Temperature(0));
             }
         });
     }
@@ -98,5 +98,17 @@ public class OutfitAcceptanceTest {
                 statusCode(422).
                 contentType(ContentType.JSON).
                 body("error", equalTo("No location given"));
+    }
+
+    @Test
+    public void nameOfCityShouldBeReturned() {
+        given().
+                header("Accept-Encoding", "application/json").
+        when().
+                get("/outfit?q=Karlsruhe").
+        then().
+                statusCode(200).
+                contentType(ContentType.JSON).
+                body("city", equalTo("Karlsruhe"));
     }
 }
