@@ -55,8 +55,12 @@ public class OutfitService {
             System.out.println("java -jar outfit_service.jar --key=12345");
             return;
         }
+        startServer(host, port, new OpenWeatherMap(apiKey));
+    }
+
+    static void startServer(String host, int port, Weather weather) {
         final RoutingHandler routes = Handlers.routing()
-                .add(Methods.GET, "/outfit", new OutfitHandler(new OpenWeatherMap(apiKey)));
+                .add(Methods.GET, "/outfit", new OutfitHandler(weather));
         final Undertow server = Undertow.builder()
                 .addHttpListener(port, host)
                 .setHandler(routes)
