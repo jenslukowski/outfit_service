@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.util.stream.Collectors;
 
 public class OpenWeatherMap implements Weather {
+    private static final String openWeatherMapURL = "http://api.openweathermap.org/data/2.5/weather";
 
     private final String apiKey;
 
@@ -39,19 +40,19 @@ public class OpenWeatherMap implements Weather {
     }
 
     private URL urlForCity(String city) throws UnsupportedEncodingException, MalformedURLException {
-        return new URL("http://api.openweathermap.org/data/2.5/weather?q=" + URLEncoder.encode(city, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+        return new URL(openWeatherMapURL + "?q=" + URLEncoder.encode(city, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
     }
 
     private URL urlForCityId(int cityId) throws UnsupportedEncodingException, MalformedURLException {
-        return new URL("http://api.openweathermap.org/data/2.5/weather?id=" + cityId + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+        return new URL(openWeatherMapURL + "?id=" + cityId + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
     }
 
     private URL urlForLocation(double latitude, double longitude) throws UnsupportedEncodingException, MalformedURLException {
-        return new URL("http://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+        return new URL(openWeatherMapURL + "?lat=" + latitude + "&lon=" + longitude + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
     }
 
     private URL urlForZip(String zip) throws UnsupportedEncodingException, MalformedURLException {
-        return new URL("http://api.openweathermap.org/data/2.5/weather?zip=" + URLEncoder.encode(zip, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
+        return new URL(openWeatherMapURL + "?zip=" + URLEncoder.encode(zip, "UTF-8") + "&appid=" + URLEncoder.encode(apiKey, "UTF-8") + "&units=metric");
     }
 
     private Temperature currentTemperatureFor(URL url) throws IOException {
